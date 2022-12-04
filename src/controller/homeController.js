@@ -25,7 +25,7 @@ let getHomePage = async (req, res) => {
                                             rating varchar(255),
                                             genres varchar(255),
                                             reviews TEXT[][],
-                                            synopses varchar(25555),
+                                            synopses varchar(100000),
                                             casts TEXT[][]
                                             )`);
     for (let i = 0; i < datajsonmovies.length; i++) {
@@ -51,17 +51,65 @@ let getHomePage = async (req, res) => {
             }
             reviewsdata.push(`'${datajsonmovies[i].reviews[datajsonmovies[i].reviews.length - 1].author}`)
         }
-        await connection.query(`insert into movies(id, image, title, year, topRank, rating, genres, reviews, synopses, casts) values ('${datajsonmovies[i].id}', '${datajsonmovies[i].img}', '${datajsonmovies[i].title}', '${datajsonmovies[i].year}', '${datajsonmovies[i].topRank}', '${datajsonmovies[i].rating}', '${datajsonmovies[i].genres}', ARRAY['${reviewsdata}'], '${datajsonmovies[i].synopses}', ARRAY['${castsdata}'])`);
+        let synopsesdata = '';
+        if (datajsonmovies[i].synopses == undefined) {
+            synopsesdata = '';
+        } else {
+            synopsesdata = datajsonmovies[i].synopses.text;
+        }
+        await connection.query(`insert into movies(id, image, title, year, topRank, rating, genres, reviews, synopses, casts) values ('${datajsonmovies[i].id}', '${datajsonmovies[i].img}', '${datajsonmovies[i].title}', '${datajsonmovies[i].year}', '${datajsonmovies[i].topRank}', '${datajsonmovies[i].rating}', '${datajsonmovies[i].genres}', ARRAY['${reviewsdata}'], '${synopsesdata}', ARRAY['${castsdata}'])`);
         
-        console.log('check data import ', reviewsdata);
+        // console.log('check data import ', reviewsdata);
     }
-    console.log('check unde ', datajsonmovies[4].reviews[0]);
+    // if (datajsonmovies[0].synopses != undefined) console.log('check unde ', datajsonmovies[0].synopses.text);
     const rows = await connection.query(`select * from movies`);
-    console.log('check data base ', rows[4].casts[1]);
-    console.log('check data base ', rows[0].reviews[0]);
-    res.render('home.handlebars');
+    if (isNaN(parseFloat(rows[4].rating))) console.log('check data base ',typeof parseFloat(rows[4].rating));
+    // console.log('check data base ', rows[4].reviews[0]);
+    // console.log('check data base ', rows[0].synopses);
+    let ratingmovies = [];
+    const rows1 = await connection.query(`select * from movies`);
+    for (let i = 0; i < rows1.length - 1; i++) {
+        for (let j = i + 1; j < rows1.length; j++) {
+            if (parseFloat(rows1[i].rating) <= parseFloat(rows1[j].rating)) {
+                let temp = rows1[i];
+                rows1[i] = rows1[j];
+                rows1[j] = temp;
+            }
+        }
+    }
+    let count = 0;
+    for (let i = 0; i < 20; i++) {
+        if (isNaN(parseFloat(rows1[i].rating)) == false) {
+            ratingmovies.push(rows1[i]);
+            count++;
+        }
+        if (count == 10) break;
+    }
+    // console.log('check rank ', ratingmovies[1]);
+    res.render('home.handlebars', {data: rows, datarank: ratingmovies});
+};
+let postSearchPage = async (req, res) => {
+    console.log('check name search ', req.body);
+    const rows = await connection.query(`select * from movies`);
+    let datasearch = [];
+    for (let i = 0; i < rows.length; i++) {
+        // console.log(rows[i].title)
+        if (rows[i].title.toLowerCase().indexOf(req.body.name.toLowerCase()) >= 0) {
+            console.log("oke");
+            datasearch.push(rows[i]);
+        }
+    }
+    console.log(datasearch[0].title, datasearch[1].title);
+    return res.render('search', {datasearch: datasearch});
+};
+let getDetailPage = async (req, res) => {
+    let movieID = req.params.movieID;
+    let rows = await connection.query(`select * from movies where id = '${movieID}'`)
+    console.log('check params ', req.params);
+    console.log('check data params ', rows);
+    return res.render('detail', {data: rows});
 };
 
 module.exports = {
-    getHomePage
+    getHomePage,postSearchPage, getDetailPage
 }

@@ -5,6 +5,8 @@ let router = express.Router();
 const initWebRoute = (app) => {
     // home
     router.get('/', controller.getHomePage);
+    router.get('/detail/:movieID', controller.getDetailPage);
+    router.post('/search', controller.postSearchPage);
     return app.use('/', router);
 }
 

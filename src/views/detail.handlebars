@@ -1,0 +1,14 @@
+<h1>DETAIL</h1>
+{{#each data}}
+<div class="card" style="width: 50rem;">
+  <img class="card-img-top" src="{{image}}" alt="Card image cap">
+  <div class="card-body">
+    <h5 class="card-title">{{title}} - Rating: {{rating}}</h5>
+    <div class="">Genres: {{genres}}</div>
+    <p class="card-text" style="height: 200px; overflow: scroll">{{synopses}}</p>
+    <div class="">Year: {{year}}</div>
+    <div class="">Top Rank: {{toprank}}</div>
+    {{!-- <a href="#" class="btn btn-primary">Go somewhere</a> --}}
+  </div>
+</div>
+{{/each}}

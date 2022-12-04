@@ -7,11 +7,15 @@
     <a href="#" class="btn btn-primary">Go somewhere</a>
   </div>
 </div>
-{{!-- {{#each datajson}}
-  <p>
-    <span> {{ id }} </span> - <span>{{ image }} </span>
-    <img src="{{image}}" width="100px">
-  </p>
+{{#each datarank}}
+<div class="card" style="width: 30rem;">
+  <img class="card-img-top" src="{{image}}" alt="Card image cap">
+  <div class="card-body">
+    <h5 class="card-title">{{title}} - Rating: {{rating}}</h5>
+    <p class="card-text" style="height: 150px; overflow: scroll">{{synopses}}</p>
+    <a href="/detail/{{id}}" class="btn btn-primary">Detail</a>
+  </div>
+</div>
 {{/each}}
 
-<div class="">{{id}}</div> --}}
+<div class="">{{id}}</div>
